@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import UserModel from "./UserModel";
+import UserModel from "./UserModel.js";
 
 const OrderSchema = new mongoose.Schema(
   {
@@ -11,7 +11,7 @@ const OrderSchema = new mongoose.Schema(
     orderItems: [
       {
         product: {
-          type: mongoose.Schema.Type.ObjectId,
+          type: mongoose.Schema.Types.ObjectId,
           ref: "ProductModel",
           required: true,
         },

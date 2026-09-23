@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import router from "./routes/authRoutes.js";
 import Productrouter from "./routes/productRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 const app = express();
 dotenv.config();
@@ -16,6 +17,7 @@ connectDB();
 
 app.use("/api/auth", router);
 app.use("/api/products", Productrouter);
+app.use("/api/order", orderRoutes);
 
 app.get("/", (req, res) => {
   res.send("I am backend server");
