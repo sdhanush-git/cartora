@@ -72,7 +72,7 @@ export const registerUser = async (req, res) => {
     console.log("REGISTER ERROR:", error);
 
     res.status(500).json({
-      message: "Server error",
+      message: "Server error 1",
     });
   }
 };
