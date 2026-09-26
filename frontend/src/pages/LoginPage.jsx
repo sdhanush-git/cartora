@@ -1,7 +1,33 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    const { value, name } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const { authLogin } = useAuth();
+
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      await authLogin(formData);
+      navigate("/");
+    } catch (error) {
+      throw error;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-[#111113] flex items-center justify-center px-5 py-10 overflow-hidden">
@@ -32,7 +58,7 @@ export default function LoginPage() {
         </div>
 
         {/* Form */}
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Email */}
           <div>
             <label className="mb-2 block text-[13px] font-medium text-zinc-700">
@@ -42,6 +68,9 @@ export default function LoginPage() {
             <input
               type="email"
               placeholder="you@example.com"
+              // value={}
+              name="email"
+              onChange={handleChange}
               className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-[14px] outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
             />
           </div>
@@ -65,11 +94,13 @@ export default function LoginPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Your password"
+                name="password"
+                onChange={handleChange}
                 className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 pr-16 text-[14px] outline-none transition-all duration-200 placeholder:text-zinc-400 hover:border-zinc-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
               />
 
               <button
-                type="button"
+                type="submit"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-medium text-zinc-400 transition-colors hover:text-zinc-800"
               >

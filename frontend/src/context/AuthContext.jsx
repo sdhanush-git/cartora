@@ -25,8 +25,20 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const authLogin = async (credentials) => {
+    try {
+      const response = await api.post("/auth/login", credentials);
+      setUser(response.data.user);
+      localStorage.setItem("token", response.data.token);
+      return response.data;
+    } catch (error) {
+      console.error("Login failed:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, authRegister }}>
+    <AuthContext.Provider value={{ user, authRegister, authLogin }}>
       {children}
     </AuthContext.Provider>
   );

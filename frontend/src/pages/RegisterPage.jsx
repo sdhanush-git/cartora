@@ -23,7 +23,6 @@ export default function RegisterPage() {
     e.preventDefault();
     try {
       await authRegister(formData);
-
       console.log("Registration successful");
       navigate("/login");
     } catch (error) {
