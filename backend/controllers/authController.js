@@ -116,3 +116,14 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.user.id).select("-password");
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({
+      message: "cannot get user profile",
+    });
+  }
+};

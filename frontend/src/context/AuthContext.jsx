@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import api from "../api/axios";
 
 const AuthContext = createContext();
@@ -36,6 +36,31 @@ export const AuthContextProvider = ({ children }) => {
       throw error;
     }
   };
+
+  const getUserProfile = async () => {
+    try {
+      const { data } = await api.get("/auth/profile");
+
+      setUser(data);
+    } catch (error) {
+      localStorage.removeItem("token");
+      setUser(null);
+
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      getUserProfile().finally(() => {
+        // setLoading(false);
+      });
+    } else {
+      // setLoading(false);
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, authRegister, authLogin }}>

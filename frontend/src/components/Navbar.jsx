@@ -153,7 +153,7 @@ const Navbar = () => {
                 <LogIn size={16} />
                 Login
               </Link>
-
+              {console.log("User is null, showing Register link")}
               <Link
                 to="/register"
                 className="
