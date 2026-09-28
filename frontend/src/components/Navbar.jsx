@@ -12,13 +12,19 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+import NavbarSkeleton from "./NavbarSkeleton";
+
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, authLoading } = useAuth();
+
+  if (authLoading) {
+    return <NavbarSkeleton />;
+  }
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);

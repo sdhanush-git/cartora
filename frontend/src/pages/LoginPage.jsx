@@ -6,6 +6,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isloading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -18,14 +19,19 @@ export default function LoginPage() {
   };
 
   const { authLogin } = useAuth();
-
   const handleSubmit = async (e) => {
+    e.preventDefault();
+
     try {
-      e.preventDefault();
+      setIsLoading(true);
       await authLogin(formData);
       navigate("/");
     } catch (error) {
-      throw error;
+      // Handle error here (e.g., show a toast notification or set an error state)
+      console.error("Login failed:", error);
+    } finally {
+      // Always runs regardless of success or failure
+      setIsLoading(false);
     }
   };
 
@@ -112,9 +118,11 @@ export default function LoginPage() {
           {/* Button */}
           <button
             type="submit"
-            className="group relative mt-2 h-12 w-full overflow-hidden rounded-xl bg-[#18181b] text-[14px] font-medium text-white transition-all duration-300 hover:-translate-y-[1px] hover:bg-violet-600 hover:shadow-xl hover:shadow-violet-500/20 active:translate-y-0"
+            className={`group relative mt-2 h-12 w-full overflow-hidden rounded-xl  text-[14px] font-medium text-white transition-all duration-300 hover:-translate-y-[1px]   active:translate-y-0 ${isloading ? "cursor-not-allowed bg-gray-400" : "bg-[#18181b] hover:shadow-xl hover:shadow-violet-500/20 hover:bg-violet-600"}`}
           >
-            <span className="relative z-10">Sign in</span>
+            <span className="relative z-10">
+              {isloading ? "Loading..." : "SignIn"}
+            </span>
 
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </button>

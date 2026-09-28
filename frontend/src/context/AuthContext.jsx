@@ -5,6 +5,7 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   const authRegister = async (userData) => {
     try {
@@ -37,33 +38,59 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
-  const getUserProfile = async () => {
-    try {
-      const { data } = await api.get("/auth/profile");
+  // const getUserProfile = async () => {
+  //   try {
+  //     const { data } = await api.get("/auth/profile");
 
-      setUser(data);
-    } catch (error) {
-      localStorage.removeItem("token");
-      setUser(null);
+  //     setUser(data);
+  //   } catch (error) {
+  //     localStorage.removeItem("token");
+  //     setUser(null);
 
-      throw error;
-    }
-  };
+  //     throw error;
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+
+  //   if (token) {
+  //     getUserProfile().finally(() => {
+  //       // setLoading(false);
+  //     });
+  //   } else {
+  //     // setLoading(false);
+  //   }
+  // }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const getProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-    if (token) {
-      getUserProfile().finally(() => {
-        // setLoading(false);
-      });
-    } else {
-      // setLoading(false);
-    }
+        if (!token) {
+          setUser(null);
+          return;
+        }
+
+        const { data } = await api.get("/auth/profile");
+
+        setUser(data);
+      } catch (error) {
+        localStorage.removeItem("token");
+        setUser(null);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    getProfile();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, authRegister, authLogin }}>
+    <AuthContext.Provider
+      value={{ user, authRegister, authLogin, authLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

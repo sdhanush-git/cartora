@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const { authRegister } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [isloading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -22,11 +23,14 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       await authRegister(formData);
       console.log("Registration successful");
       navigate("/login");
     } catch (error) {
       console.log("Registration failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -135,9 +139,11 @@ export default function RegisterPage() {
           {/* Button */}
           <button
             type="submit"
-            className="group relative mt-2 h-12 w-full overflow-hidden rounded-xl bg-[#18181b] text-[14px] font-medium text-white transition-all duration-300 hover:-translate-y-[1px] hover:bg-violet-600 hover:shadow-xl hover:shadow-violet-500/20 active:translate-y-0"
+            className={`group relative mt-2 h-12 w-full overflow-hidden rounded-xl  text-[14px] font-medium text-white transition-all duration-300 hover:-translate-y-[1px]  hover:shadow-xl hover:shadow-violet-500/20 active:translate-y-0 ${isloading ? "cursor-not-allowed bg-gray-400" : "bg-[#18181b] hover:bg-violet-600"}`}
           >
-            <span className="relative z-10">Create account</span>
+            <span className="relative z-10">
+              {isloading ? "Almost there..." : "Create account"}
+            </span>
 
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </button>
