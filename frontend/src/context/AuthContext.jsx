@@ -38,31 +38,6 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
-  // const getUserProfile = async () => {
-  //   try {
-  //     const { data } = await api.get("/auth/profile");
-
-  //     setUser(data);
-  //   } catch (error) {
-  //     localStorage.removeItem("token");
-  //     setUser(null);
-
-  //     throw error;
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-
-  //   if (token) {
-  //     getUserProfile().finally(() => {
-  //       // setLoading(false);
-  //     });
-  //   } else {
-  //     // setLoading(false);
-  //   }
-  // }, []);
-
   useEffect(() => {
     const getProfile = async () => {
       try {
@@ -87,9 +62,14 @@ export const AuthContextProvider = ({ children }) => {
     getProfile();
   }, []);
 
+  const authLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, authRegister, authLogin, authLoading }}
+      value={{ user, authRegister, authLogin, authLoading, authLogout }}
     >
       {children}
     </AuthContext.Provider>
