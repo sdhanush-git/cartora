@@ -11,16 +11,28 @@ import {
 } from "lucide-react";
 
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import NavbarSkeleton from "./NavbarSkeleton";
+import { useProduct } from "../context/ProductContext";
 
 const Navbar = () => {
   const { user, authLoading, authLogout } = useAuth();
   const navigate = useNavigate();
 
+  const [totalState, setTotalState] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
+  const { totalItems } = useProduct();
+
+  useEffect(() => {
+    const storedItems = localStorage.getItem("cartItems");
+
+    const cartItems = storedItems ? JSON.parse(storedItems) : [];
+
+    setTotalState(cartItems.length);
+  }, [totalState]);
 
   if (authLoading) {
     return <NavbarSkeleton />;
@@ -112,7 +124,7 @@ const Navbar = () => {
             <ShoppingCart size={19} />
 
             <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-gray-950 px-1 text-[9px] font-semibold text-white">
-              3
+              {totalItems}
             </span>
           </Link>
 
@@ -235,7 +247,7 @@ const Navbar = () => {
               </span>
 
               <span className="rounded-full bg-gray-950 px-2 py-0.5 text-[10px] text-white">
-                3
+                {totalItems}
               </span>
             </Link>
 
