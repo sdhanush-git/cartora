@@ -86,20 +86,6 @@ const Navbar = () => {
           </Link>
 
           <Link
-            to="/categories"
-            className={`relative rounded-lg px-4 py-2 text-sm transition-colors ${
-              location.pathname === "/categories"
-                ? "font-semibold text-gray-950"
-                : "text-gray-600 hover:text-gray-950"
-            }`}
-          >
-            {location.pathname === "/categories" && (
-              <span className="absolute -left-0.5 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-gray-950" />
-            )}
-            Categories
-          </Link>
-
-          <Link
             to="/orders"
             className={`relative rounded-lg px-4 py-2 text-sm transition-colors ${
               location.pathname === "/orders"

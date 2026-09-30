@@ -2,6 +2,7 @@ import React from "react";
 import { Minus, Plus, Trash2, ArrowLeft, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProduct } from "../context/ProductContext";
+import { useNavigate } from "react-router-dom";
 
 export const CartPage = () => {
   const {
@@ -12,6 +13,7 @@ export const CartPage = () => {
     totalItems,
   } = useProduct();
 
+  const navigate = useNavigate();
   // Subtotal
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -23,6 +25,10 @@ export const CartPage = () => {
 
   // Final total
   const total = subtotal + delivery;
+
+  const handeleCkeckout = () => {
+    navigate("/checkout");
+  };
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
@@ -205,7 +211,10 @@ export const CartPage = () => {
                 </div>
 
                 {/* Place Order */}
-                <button className="mt-6 w-full rounded-xl bg-gray-950 py-3.5 text-sm font-semibold text-white transition hover:bg-gray-800 active:scale-[0.99]">
+                <button
+                  onClick={handeleCkeckout}
+                  className="mt-6 w-full rounded-xl bg-gray-950 py-3.5 text-sm font-semibold text-white transition hover:bg-gray-800 active:scale-[0.99]"
+                >
                   Place Order
                 </button>
 

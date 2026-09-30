@@ -39,9 +39,17 @@ export const getMyOrder = async (req, res) => {
   try {
     const myOrder = await OrderModels.findById(req.params.id);
 
-    res.json(myOrder.orderItems);
+    if (!myOrder) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    res.status(200).json(myOrder.orderItems);
   } catch (error) {
-    res.json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 

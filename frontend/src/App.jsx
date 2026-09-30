@@ -7,6 +7,8 @@ import {
   CartPage,
   AdminHome,
   EditProduct,
+  CheckoutPage,
+  OrdersPage,
 } from "./pages/index";
 
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
@@ -32,6 +34,8 @@ const router = createBrowserRouter([
       { path: "/cart", element: <CartPage /> },
       { path: "/admin", element: <AdminHome /> },
       { path: "/admin/edit/:id", element: <EditProduct /> },
+      { path: "/checkout", element: <CheckoutPage /> },
+      { path: "/orders", element: <OrdersPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

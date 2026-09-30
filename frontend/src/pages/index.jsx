@@ -6,6 +6,8 @@ import NotFoundPage from "./NotFoundPage";
 import AdminHome from "../admin/AdminHome";
 import EditProduct from "../admin/EditProduct";
 import { CartPage } from "../pages/CartPage";
+import { CheckoutPage } from "../pages/CheckOutPage";
+import { OrdersPage } from "./OrdersPage";
 
 export {
   HeroPage,
@@ -15,4 +17,6 @@ export {
   AdminHome,
   EditProduct,
   CartPage,
+  CheckoutPage,
+  OrdersPage,
 };
