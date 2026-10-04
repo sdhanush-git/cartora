@@ -1,8 +1,10 @@
 import express from "express";
-import { protect, admin } from "../middleware/authMiddleWare.js";
+import { protect, adminOnly } from "../middleware/authMiddleWare.js";
 
 import {
   getProducts,
+  getProductById,
+  getCategories,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -10,11 +12,14 @@ import {
 
 const router = express.Router();
 
-router.route("/").get(getProducts).post(protect, admin, createProduct);
+router.route("/").get(getProducts).post(protect, adminOnly, createProduct);
+
+router.get("/categories/list", getCategories);
 
 router
   .route("/:id")
-  .put(protect, admin, updateProduct)
-  .delete(protect, admin, deleteProduct);
+  .get(getProductById)
+  .put(protect, adminOnly, updateProduct)
+  .delete(protect, adminOnly, deleteProduct);
 
 export default router;

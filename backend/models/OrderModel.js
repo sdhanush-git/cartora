@@ -13,11 +13,12 @@ const OrderSchema = new mongoose.Schema(
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "ProductModel",
-          required: true,
+          required: false,
         },
         name: String,
         price: Number,
         quantity: Number,
+        image: String,
       },
     ],
     totalPrice: {
@@ -26,14 +27,16 @@ const OrderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Process", "Shipped", "Delivered"],
+      enum: ["Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"],
       default: "Pending",
     },
     Address: {
+      fullName: String,
+      phone: String,
       address: String,
       city: String,
-      costalCode: String,
-      country: String,
+      state: String,
+      pincode: String,
     },
   },
   { timestamps: true },

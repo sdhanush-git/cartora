@@ -6,7 +6,7 @@ export const protect = (req, res, next) => {
 
   if (!token) {
     return res.status(401).json({
-      message: "User not authorized!",
+      message: "Please log in.",
     });
   }
 
@@ -19,20 +19,21 @@ export const protect = (req, res, next) => {
     next();
   } catch (error) {
     return res.status(401).json({
-      message: "Invalid or expired token.",
+      message: "Please log in.",
     });
   }
 };
 
-export const admin = async (req, res, next) => {
-  const user = await UserModel.findById(req.user.id);
+export const adminOnly = async (req, res, next) => {
   try {
-    if (user.role == "admin") {
+    const user = await UserModel.findById(req.user.id);
+    if (user && user.role === "admin") {
       next();
     } else {
-      res.json("You are not authroized as admin");
+      return res.status(403).json({ message: "Admin access required." });
     }
   } catch (error) {
     console.log(error);
+    return res.status(403).json({ message: "Admin access required." });
   }
 };

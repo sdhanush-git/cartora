@@ -1,10 +1,17 @@
-import { useContext, createContext, useState, useEffect } from "react";
+import { useContext, createContext, useState, useEffect, useCallback } from "react";
 import api from "../api/axios";
+import { useAuth } from "./AuthContext";
+import { useToast } from "./ToastContext";
 
 const ProductContext = createContext();
 
 export const ProductContextProvider = ({ children }) => {
+  const { user } = useAuth();
+  const toast = useToast();
   const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
+  const [cartLoading, setCartLoading] = useState(false);
+  const [cartError, setCartError] = useState(null);
 
   // =========================
   // GET PRODUCTS
@@ -19,91 +26,119 @@ export const ProductContextProvider = ({ children }) => {
   };
 
   // =========================
-  // CART ITEMS
+  // FETCH CART
   // =========================
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const existingItems = localStorage.getItem("cartItems");
-
-      return existingItems ? JSON.parse(existingItems) : [];
-    } catch (error) {
-      console.log("Error while fetching cart items from localStorage");
-      return [];
+  const fetchCart = useCallback(async () => {
+    if (!user) {
+      setCartItems([]);
+      return;
     }
-  });
+    try {
+      setCartLoading(true);
+      const res = await api.get("/cart");
+      
+      if (res.data.modifiedMessage) {
+        toast.info(res.data.modifiedMessage);
+      }
+      
+      const formattedItems = (res.data.items || []).map(item => ({
+        ...item.product,
+        quantity: item.quantity
+      }));
+      setCartItems(formattedItems);
+      setCartError(null);
+    } catch (error) {
+      console.error("Error fetching cart", error);
+    } finally {
+      setCartLoading(false);
+    }
+  }, [user, toast]);
 
-  // =========================
-  // SAVE CART TO LOCAL STORAGE
-  // =========================
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
+    fetchCart();
+  }, [fetchCart]);
 
   // =========================
   // ADD TO CART
   // =========================
-  const addToCart = (product, quantity = 1) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item._id === product._id);
-
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item._id === product._id
-            ? {
-                ...item,
-                quantity: item.quantity + quantity,
-              }
-            : item,
-        );
-      }
-
-      return [
-        ...prevItems,
-        {
-          ...product,
-          quantity,
-        },
-      ];
-    });
+  const addToCart = async (product, quantity = 1) => {
+    if (!user) {
+      toast.error("Please log in.");
+      return;
+    }
+    try {
+      setCartLoading(true);
+      const res = await api.post("/cart", { productId: product._id, quantity });
+      const formattedItems = res.data.items.map(item => ({
+        ...item.product,
+        quantity: item.quantity
+      }));
+      setCartItems(formattedItems);
+      setCartError(null);
+      toast.success("Added to cart.");
+    } catch (error) {
+      const msg = error.response?.data?.message || "Something went wrong.";
+      setCartError(msg);
+      toast.error(msg);
+    } finally {
+      setCartLoading(false);
+    }
   };
 
   // =========================
-  // INCREASE QUANTITY
+  // INCREASE / DECREASE QUANTITY
   // =========================
+  const updateQuantity = async (productId, newQuantity) => {
+    try {
+      const res = await api.put(`/cart/${productId}`, { quantity: newQuantity });
+      const formattedItems = res.data.items.map(item => ({
+        ...item.product,
+        quantity: item.quantity
+      }));
+      setCartItems(formattedItems);
+      setCartError(null);
+      toast.success("Cart updated.");
+    } catch (error) {
+      const msg = error.response?.data?.message || "Something went wrong.";
+      setCartError(msg);
+      toast.error(msg);
+    }
+  };
+
   const increaseQuantity = (id) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item._id === id && item.quantity < item.stock
-          ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
-          : item,
-      ),
-    );
+    const item = cartItems.find(i => i._id === id);
+    if (item && item.quantity < item.stock) {
+      updateQuantity(id, item.quantity + 1);
+    } else if (item) {
+      toast.error(`Only ${item.stock} items are available.`);
+    }
   };
 
-  // =========================
-  // DECREASE QUANTITY
-  // =========================
   const decreaseQuantity = (id) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item._id === id && item.quantity > 1
-          ? {
-              ...item,
-              quantity: item.quantity - 1,
-            }
-          : item,
-      ),
-    );
+    const item = cartItems.find(i => i._id === id);
+    if (item && item.quantity > 1) {
+      updateQuantity(id, item.quantity - 1);
+    }
   };
 
   // =========================
   // DELETE FROM CART
   // =========================
-  const removeItem = (id) => {
-    setCartItems((items) => items.filter((item) => item._id !== id));
+  const removeItem = async (id) => {
+    try {
+      const res = await api.delete(`/cart/${id}`);
+      const formattedItems = res.data.items.map(item => ({
+        ...item.product,
+        quantity: item.quantity
+      }));
+      setCartItems(formattedItems);
+      setCartError(null);
+      toast.success("Removed from cart.");
+    } catch (error) {
+      const msg = error.response?.data?.message || "Something went wrong.";
+      setCartError(msg);
+      toast.error(msg);
+    }
   };
 
   // =========================
@@ -115,6 +150,19 @@ export const ProductContextProvider = ({ children }) => {
   );
 
   // =========================
+  // CLEAR CART
+  // =========================
+  const clearCart = async () => {
+    if (!user) return;
+    try {
+      await api.delete("/cart");
+      setCartItems([]);
+    } catch (error) {
+      console.error("Failed to clear cart", error);
+    }
+  };
+
+  // =========================
   // CONTEXT VALUE
   // =========================
   const value = {
@@ -122,10 +170,13 @@ export const ProductContextProvider = ({ children }) => {
     getProducts,
 
     cartItems,
+    cartLoading,
+    cartError,
     addToCart,
     increaseQuantity,
     decreaseQuantity,
     removeItem,
+    clearCart,
     totalItems,
   };
 

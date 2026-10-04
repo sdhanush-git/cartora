@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 export const CartPage = () => {
   const {
     cartItems,
+    cartLoading,
     increaseQuantity,
     decreaseQuantity,
     removeItem,
@@ -14,6 +15,11 @@ export const CartPage = () => {
   } = useProduct();
 
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    document.title = "Cartora | Cart";
+  }, []);
+
   // Subtotal
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -53,8 +59,30 @@ export const CartPage = () => {
           </p>
         </div>
 
-        {/* Empty Cart */}
-        {cartItems.length === 0 ? (
+        {/* Loading State Skeleton */}
+        {cartLoading && cartItems.length === 0 ? (
+          <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+            <div className="space-y-4">
+              {[1, 2].map((n) => (
+                <div key={n} className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 animate-pulse">
+                  <div className="h-28 w-24 rounded-xl bg-gray-200 sm:h-32 sm:w-32" />
+                  <div className="flex-1 space-y-3">
+                    <div className="h-4 w-40 rounded bg-gray-200" />
+                    <div className="h-3 w-20 rounded bg-gray-100" />
+                    <div className="h-8 w-24 rounded bg-gray-100" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 space-y-4 animate-pulse h-64">
+              <div className="h-5 w-32 rounded bg-gray-200" />
+              <div className="space-y-2">
+                <div className="h-4 w-full rounded bg-gray-100" />
+                <div className="h-4 w-full rounded bg-gray-100" />
+              </div>
+            </div>
+          </div>
+        ) : cartItems.length === 0 ? (
           <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white px-6 text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-500">
               🛒

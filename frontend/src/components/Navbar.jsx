@@ -1,5 +1,6 @@
 import {
   ShoppingCart,
+  Heart,
   Leaf,
   Menu,
   X,
@@ -8,31 +9,35 @@ import {
   UserPlus,
   LogOut,
   Package,
+  Search,
+  LayoutDashboard,
 } from "lucide-react";
 
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import NavbarSkeleton from "./NavbarSkeleton";
 import { useProduct } from "../context/ProductContext";
+import { useWishlist } from "../context/WishlistContext";
 
 const Navbar = () => {
   const { user, authLoading, authLogout } = useAuth();
+  const { wishlistCount } = useWishlist();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [totalState, setTotalState] = useState(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileMenu(false);
+    }
+  };
 
   const { totalItems } = useProduct();
-
-  useEffect(() => {
-    const storedItems = localStorage.getItem("cartItems");
-
-    const cartItems = storedItems ? JSON.parse(storedItems) : [];
-
-    setTotalState(cartItems.length);
-  }, [totalState]);
 
   if (authLoading) {
     return <NavbarSkeleton />;
@@ -74,15 +79,29 @@ const Navbar = () => {
           <Link
             to="/"
             className={`relative rounded-lg px-4 py-2 text-sm transition-colors ${
-              location.pathname === "/"
+              location.pathname === "/" || location.pathname === "/products"
                 ? "font-semibold text-gray-950"
                 : "text-gray-600 hover:text-gray-950"
             }`}
           >
-            {location.pathname === "/" && (
+            {(location.pathname === "/" || location.pathname === "/products") && (
               <span className="absolute -left-0.5 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-gray-950" />
             )}
             Products
+          </Link>
+
+          <Link
+            to="/categories"
+            className={`relative rounded-lg px-4 py-2 text-sm transition-colors ${
+              location.pathname.startsWith("/categories") || location.pathname.startsWith("/category")
+                ? "font-semibold text-gray-950"
+                : "text-gray-600 hover:text-gray-950"
+            }`}
+          >
+            {(location.pathname.startsWith("/categories") || location.pathname.startsWith("/category")) && (
+              <span className="absolute -left-0.5 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-gray-950" />
+            )}
+            Categories
           </Link>
 
           <Link
@@ -98,14 +117,57 @@ const Navbar = () => {
             )}
             Orders
           </Link>
+
+          {user?.role === "admin" && (
+            <Link
+              to="/admin"
+              className={`relative rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                location.pathname.startsWith("/admin")
+                  ? "bg-purple-50 text-purple-700 font-semibold"
+                  : "text-purple-600 hover:bg-purple-50"
+              }`}
+            >
+              Admin Panel
+            </Link>
+          )}
         </div>
 
         {/* Desktop Right */}
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
+          {/* Search */}
+          <div className="relative flex items-center">
+            <Search className="absolute left-3 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
+              className="w-48 rounded-full border border-gray-200 bg-gray-50 py-1.5 pl-9 pr-4 text-sm outline-none transition focus:border-gray-950 focus:bg-white lg:w-64"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+          {/* Wishlist */}
+          <Link
+            to="/wishlist"
+            className="relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-950"
+            title="Wishlist"
+          >
+            <Heart size={19} />
+
+            {wishlistCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-semibold text-white">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
           {/* Cart */}
           <Link
             to="/cart"
             className="relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-950"
+            title="Cart"
           >
             <ShoppingCart size={19} />
 
@@ -170,6 +232,17 @@ const Navbar = () => {
                     My Orders
                   </Link>
 
+                  {user.role === "admin" && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-purple-700 hover:bg-purple-50"
+                    >
+                      <LayoutDashboard size={16} />
+                      Admin Panel
+                    </Link>
+                  )}
+
                   <div className="my-1 border-t border-gray-100" />
 
                   <button
@@ -183,6 +256,7 @@ const Navbar = () => {
               )}
             </div>
           )}
+          </div>
         </div>
 
         {/* Mobile Button */}
@@ -198,6 +272,18 @@ const Navbar = () => {
       {mobileMenu && (
         <div className="border-t border-gray-100 bg-white px-4 py-3 md:hidden">
           <div className="flex flex-col gap-1">
+            <div className="relative mb-3 flex items-center">
+              <Search className="absolute left-3 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-gray-950 focus:bg-white"
+              />
+            </div>
+
             <Link
               to="/products"
               onClick={closeMobile}
@@ -220,6 +306,34 @@ const Navbar = () => {
               className="rounded-lg px-3 py-3 text-sm text-gray-700 hover:bg-gray-100"
             >
               Orders
+            </Link>
+
+            {user?.role === "admin" && (
+              <Link
+                to="/admin"
+                onClick={closeMobile}
+                className="flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-3 text-sm font-medium text-purple-700"
+              >
+                <LayoutDashboard size={17} />
+                Admin Panel
+              </Link>
+            )}
+
+            <Link
+              to="/wishlist"
+              onClick={closeMobile}
+              className="flex items-center justify-between rounded-lg px-3 py-3 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              <span className="flex items-center gap-3">
+                <Heart size={17} />
+                Wishlist
+              </span>
+
+              {wishlistCount > 0 && (
+                <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] text-white">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
 
             <Link

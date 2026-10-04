@@ -2,10 +2,12 @@ import React, { useState } from "react";
 
 export const AddressForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
     address: "",
     city: "",
-    costalCode: "",
-    country: "",
+    state: "",
+    pincode: "",
   });
 
   const handleChange = (e) => {
@@ -24,30 +26,50 @@ export const AddressForm = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Address */}
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-700">
-          Address
-        </label>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">Full Name</label>
+          <input
+            type="text"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleChange}
+            placeholder="John Doe"
+            required
+            className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-gray-400"
+          />
+        </div>
 
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">Phone</label>
+          <input
+            type="text"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            placeholder="+91 9876543210"
+            required
+            className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-gray-400"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-gray-700">Address</label>
         <textarea
           name="address"
           value={formData.address}
           onChange={handleChange}
-          placeholder="Enter your full address"
+          placeholder="Enter your full street address"
           rows={3}
           required
           className="w-full resize-none rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-gray-400"
         />
       </div>
 
-      {/* City + Postal Code */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">
-            City
-          </label>
-
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">City</label>
           <input
             type="text"
             name="city"
@@ -60,37 +82,30 @@ export const AddressForm = ({ onSubmit }) => {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">
-            Postal Code
-          </label>
-
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">State</label>
           <input
             type="text"
-            name="costalCode"
-            value={formData.costalCode}
+            name="state"
+            value={formData.state}
+            onChange={handleChange}
+            placeholder="Tamil Nadu"
+            required
+            className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-gray-400"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">Pincode</label>
+          <input
+            type="text"
+            name="pincode"
+            value={formData.pincode}
             onChange={handleChange}
             placeholder="636001"
             required
             className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-gray-400"
           />
         </div>
-      </div>
-
-      {/* Country */}
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-700">
-          Country
-        </label>
-
-        <input
-          type="text"
-          name="country"
-          value={formData.country}
-          onChange={handleChange}
-          placeholder="India"
-          required
-          className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none transition focus:border-gray-400"
-        />
       </div>
 
       <button

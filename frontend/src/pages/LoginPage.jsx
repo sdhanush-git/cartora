@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [showPassword, setShowPassword] = useState(false);
   const [isloading, setIsLoading] = useState(false);
@@ -25,12 +27,12 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
       await authLogin(formData);
+      toast.success("Welcome back!");
       navigate("/");
     } catch (error) {
-      // Handle error here (e.g., show a toast notification or set an error state)
       console.error("Login failed:", error);
+      toast.error(error.response?.data?.message || "Invalid email or password.");
     } finally {
-      // Always runs regardless of success or failure
       setIsLoading(false);
     }
   };

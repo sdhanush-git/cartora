@@ -8,6 +8,11 @@ import EditProduct from "../admin/EditProduct";
 import { CartPage } from "../pages/CartPage";
 import { CheckoutPage } from "../pages/CheckOutPage";
 import { OrdersPage } from "./OrdersPage";
+import { OrderDetailsPage } from "./OrderDetailsPage";
+import { ProductDetailsPage } from "./ProductDetailsPage";
+import { WishlistPage } from "./WishlistPage";
+import { ProfilePage } from "./ProfilePage";
+import { CategoriesPage } from "./CategoriesPage";
 
 export {
   HeroPage,
@@ -19,4 +24,9 @@ export {
   CartPage,
   CheckoutPage,
   OrdersPage,
+  OrderDetailsPage,
+  ProductDetailsPage,
+  WishlistPage,
+  ProfilePage,
+  CategoriesPage,
 };

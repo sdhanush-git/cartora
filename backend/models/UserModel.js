@@ -25,13 +25,23 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: ["user", "admin"],
       default: "user",
-      isActive: {
-        type: Boolean,
-        default: true,
-      },
-      token: {
-        type: String,
-      },
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    phone: {
+      type: String,
+      default: "",
+    },
+    address: {
+      address: { type: String, default: "" },
+      city: { type: String, default: "" },
+      state: { type: String, default: "" },
+      pincode: { type: String, default: "" },
+    },
+    token: {
+      type: String,
     },
   },
   { timestamps: true },
