@@ -3,8 +3,10 @@ import OrderModel from "../models/OrderModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+const JWT_SECRET = process.env.JWT_SECRET || "mySuperSecretKey123";
+
 const genToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  return jwt.sign({ id }, JWT_SECRET, { expiresIn: "30d" });
 };
 //   try {
 //     console.log(process.env.JWT_SECRET);

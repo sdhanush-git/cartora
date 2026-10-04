@@ -48,7 +48,8 @@ export const getProducts = async (req, res) => {
     const products = await ProductModel.find(query).sort(sortOption);
     res.json(products);
   } catch (error) {
-    res.status(500).json({ message: "Unable to load products." });
+    console.error("Error in getProducts:", error);
+    res.status(500).json({ message: "Unable to load products.", error: error.message });
   }
 };
 
@@ -81,7 +82,8 @@ export const getCategories = async (req, res) => {
     const distinct = categories.map((c) => c._id).filter(Boolean);
     res.json(distinct);
   } catch (error) {
-    res.status(500).json({ message: "Unable to load categories." });
+    console.error("Error in getCategories:", error);
+    res.status(500).json({ message: "Unable to load categories.", error: error.message });
   }
 };
 

@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import UserModel from "../models/UserModel.js";
 
+const JWT_SECRET = process.env.JWT_SECRET || "mySuperSecretKey123";
+
 export const protect = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -11,7 +13,7 @@ export const protect = (req, res, next) => {
   }
 
   try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    const decode = jwt.verify(token, JWT_SECRET);
 
     req.authorized = true;
     req.user = decode;
