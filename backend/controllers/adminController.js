@@ -4,64 +4,65 @@ import OrderModel from "../models/OrderModel.js";
 
 export const getAdminStats = async (req, res) => {
   try {
-    const totalProducts = await ProductModel.countDocuments();
-    const activeProducts = await ProductModel.countDocuments({ isActive: { $ne: false } });
-    const totalUsers = await UserModel.countDocuments();
-    const totalOrders = await OrderModel.countDocuments();
-    const pendingOrders = await OrderModel.countDocuments({ status: "Pending" });
-    const lowStockCount = await ProductModel.countDocuments({ stock: { $lte: 5 } });
-
-    const revenueAggregation = await OrderModel.aggregate([
-      {
-        $match: { status: { $ne: "Cancelled" } }
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$totalPrice" }
-        }
-      }
-    ]);
-
-    const totalRevenue = revenueAggregation.length > 0 ? revenueAggregation[0].totalRevenue : 0;
-
-    const recentOrders = await OrderModel.find({})
-      .sort({ createdAt: -1 })
-      .limit(6)
-      .populate("user", "username email");
-
-    const lowStockList = await ProductModel.find({ stock: { $lte: 5 } })
-      .sort({ stock: 1 })
-      .limit(6)
-      .select("name price stock image category isActive");
-
-    // Orders by status for quick breakdown
-    const statusAggregation = await OrderModel.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    res.json({
+    const [
       totalProducts,
       activeProducts,
       totalUsers,
       totalOrders,
-      totalRevenue,
       pendingOrders,
-      lowStockProducts: lowStockCount,
+      lowStockCount,
+      revenueAggregation,
       recentOrders,
       lowStockList,
-      statusBreakdown: statusAggregation.reduce((acc, curr) => {
-        acc[curr._id] = curr.count;
-        return acc;
-      }, {})
+      statusAggregation
+    ] = await Promise.all([
+      ProductModel.countDocuments(),
+      ProductModel.countDocuments({ isActive: { $ne: false } }),
+      UserModel.countDocuments(),
+      OrderModel.countDocuments(),
+      OrderModel.countDocuments({ status: "Pending" }),
+      ProductModel.countDocuments({ stock: { $lte: 5 } }),
+      OrderModel.aggregate([
+        { $match: { status: { $ne: "Cancelled" } } },
+        { $group: { _id: null, totalRevenue: { $sum: "$totalPrice" } } }
+      ]),
+      OrderModel.find({})
+        .sort({ createdAt: -1 })
+        .limit(6)
+        .populate("user", "username email")
+        .lean(),
+      ProductModel.find({ stock: { $lte: 5 } })
+        .sort({ stock: 1 })
+        .limit(6)
+        .select("name price stock image category isActive")
+        .lean(),
+      OrderModel.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+      ])
+    ]);
+
+    const totalRevenue = revenueAggregation?.[0]?.totalRevenue || 0;
+
+    const statusBreakdown = (statusAggregation || []).reduce((acc, curr) => {
+      if (curr?._id) acc[curr._id] = curr.count;
+      return acc;
+    }, {});
+
+    res.json({
+      totalProducts: totalProducts || 0,
+      activeProducts: activeProducts || 0,
+      totalUsers: totalUsers || 0,
+      totalOrders: totalOrders || 0,
+      totalRevenue,
+      pendingOrders: pendingOrders || 0,
+      lowStockProducts: lowStockCount || 0,
+      recentOrders: recentOrders || [],
+      lowStockList: lowStockList || [],
+      statusBreakdown
     });
   } catch (error) {
-    res.status(500).json({ message: "Unable to load statistics." });
+    console.error("Admin stats error:", error);
+    res.status(500).json({ message: "Unable to load statistics.", error: error.message });
   }
 };
 
