@@ -1,4 +1,7 @@
 import React from "react";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import {
   LoginPage,
   RegisterPage,
@@ -14,6 +17,7 @@ import {
   ProfilePage,
   CategoriesPage,
 } from "./pages/index";
+
 import { ProtectedAdminRoute } from "./components/ProtectedAdminRoute";
 import ProductsPage from "./pages/ProductsPage";
 import { AdminLayout } from "./admin/AdminLayout";
@@ -78,7 +82,13 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  return <RouterProvider router={router} />;
+  const queryClient = new QueryClient();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 };
 
 export default App;

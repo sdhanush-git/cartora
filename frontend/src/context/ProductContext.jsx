@@ -1,4 +1,10 @@
-import { useContext, createContext, useState, useEffect, useCallback } from "react";
+import {
+  useContext,
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import api from "../api/axios";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
@@ -13,9 +19,6 @@ export const ProductContextProvider = ({ children }) => {
   const [cartLoading, setCartLoading] = useState(false);
   const [cartError, setCartError] = useState(null);
 
-  // =========================
-  // GET PRODUCTS
-  // =========================
   const getProducts = async () => {
     try {
       const products = await api.get("/products");
@@ -25,9 +28,6 @@ export const ProductContextProvider = ({ children }) => {
     }
   };
 
-  // =========================
-  // FETCH CART
-  // =========================
   const fetchCart = useCallback(async () => {
     if (!user) {
       setCartItems([]);
@@ -36,14 +36,14 @@ export const ProductContextProvider = ({ children }) => {
     try {
       setCartLoading(true);
       const res = await api.get("/cart");
-      
+
       if (res.data.modifiedMessage) {
         toast.info(res.data.modifiedMessage);
       }
-      
-      const formattedItems = (res.data.items || []).map(item => ({
+
+      const formattedItems = (res.data.items || []).map((item) => ({
         ...item.product,
-        quantity: item.quantity
+        quantity: item.quantity,
       }));
       setCartItems(formattedItems);
       setCartError(null);
@@ -58,9 +58,6 @@ export const ProductContextProvider = ({ children }) => {
     fetchCart();
   }, [fetchCart]);
 
-  // =========================
-  // ADD TO CART
-  // =========================
   const addToCart = async (product, quantity = 1) => {
     if (!user) {
       toast.error("Please log in.");
@@ -69,9 +66,9 @@ export const ProductContextProvider = ({ children }) => {
     try {
       setCartLoading(true);
       const res = await api.post("/cart", { productId: product._id, quantity });
-      const formattedItems = res.data.items.map(item => ({
+      const formattedItems = res.data.items.map((item) => ({
         ...item.product,
-        quantity: item.quantity
+        quantity: item.quantity,
       }));
       setCartItems(formattedItems);
       setCartError(null);
@@ -85,15 +82,14 @@ export const ProductContextProvider = ({ children }) => {
     }
   };
 
-  // =========================
-  // INCREASE / DECREASE QUANTITY
-  // =========================
   const updateQuantity = async (productId, newQuantity) => {
     try {
-      const res = await api.put(`/cart/${productId}`, { quantity: newQuantity });
-      const formattedItems = res.data.items.map(item => ({
+      const res = await api.put(`/cart/${productId}`, {
+        quantity: newQuantity,
+      });
+      const formattedItems = res.data.items.map((item) => ({
         ...item.product,
-        quantity: item.quantity
+        quantity: item.quantity,
       }));
       setCartItems(formattedItems);
       setCartError(null);
@@ -106,7 +102,7 @@ export const ProductContextProvider = ({ children }) => {
   };
 
   const increaseQuantity = (id) => {
-    const item = cartItems.find(i => i._id === id);
+    const item = cartItems.find((i) => i._id === id);
     if (item && item.quantity < item.stock) {
       updateQuantity(id, item.quantity + 1);
     } else if (item) {
@@ -115,21 +111,18 @@ export const ProductContextProvider = ({ children }) => {
   };
 
   const decreaseQuantity = (id) => {
-    const item = cartItems.find(i => i._id === id);
+    const item = cartItems.find((i) => i._id === id);
     if (item && item.quantity > 1) {
       updateQuantity(id, item.quantity - 1);
     }
   };
 
-  // =========================
-  // DELETE FROM CART
-  // =========================
   const removeItem = async (id) => {
     try {
       const res = await api.delete(`/cart/${id}`);
-      const formattedItems = res.data.items.map(item => ({
+      const formattedItems = res.data.items.map((item) => ({
         ...item.product,
-        quantity: item.quantity
+        quantity: item.quantity,
       }));
       setCartItems(formattedItems);
       setCartError(null);
@@ -141,17 +134,11 @@ export const ProductContextProvider = ({ children }) => {
     }
   };
 
-  // =========================
-  // TOTAL ITEMS
-  // =========================
   const totalItems = cartItems.reduce(
     (total, item) => total + item.quantity,
     0,
   );
 
-  // =========================
-  // CLEAR CART
-  // =========================
   const clearCart = async () => {
     if (!user) return;
     try {
@@ -162,13 +149,9 @@ export const ProductContextProvider = ({ children }) => {
     }
   };
 
-  // =========================
-  // CONTEXT VALUE
-  // =========================
   const value = {
     products,
     getProducts,
-
     cartItems,
     cartLoading,
     cartError,
